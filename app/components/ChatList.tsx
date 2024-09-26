@@ -3,13 +3,13 @@ import { Conversation } from "../../types";
 
 interface ConversationListProps {
   conversations: Conversation[];
-  selectedConversationId: number | null;
-  onSelectConversation: (conversation: Conversation) => void;
+  selectedConversation: string;
+  onSelectConversation: (room: string) => void;
 }
 
 const ConversationList: React.FC<ConversationListProps> = ({
   conversations,
-  selectedConversationId,
+  selectedConversation,
   onSelectConversation,
 }) => {
   return (
@@ -19,9 +19,11 @@ const ConversationList: React.FC<ConversationListProps> = ({
         {conversations.map((conversation) => (
           <li
             key={conversation.id}
-            onClick={() => onSelectConversation(conversation)}
+            onClick={() => onSelectConversation(conversation.room_name)}
             className={`cursor-pointer p-3 border-b border-gray-300 transition duration-300 hover:bg-gray-200 ${
-              selectedConversationId === conversation.id ? "bg-blue-100" : ""
+              selectedConversation === conversation.room_name
+                ? "bg-blue-100"
+                : ""
             }`}
           >
             Chat with {conversation.participant}

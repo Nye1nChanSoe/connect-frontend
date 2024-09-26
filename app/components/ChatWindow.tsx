@@ -1,8 +1,7 @@
 import React from "react";
-import { Conversation } from "../../types";
 
 interface ChatWindowProps {
-  selectedConversation: Conversation | null;
+  selectedConversation: string;
   newMessage: string;
   setNewMessage: (message: string) => void;
   handleSendMessage: () => void;
@@ -19,7 +18,7 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
       {selectedConversation ? (
         <>
           <h2 className="text-lg font-bold mb-4">Chat</h2>
-          <div className="space-y-2 overflow-y-auto flex-1 mb-4">
+          {/* <div className="space-y-2 overflow-y-auto flex-1 mb-4">
             {selectedConversation.messages.map((msg, index) => (
               <div
                 key={index}
@@ -45,7 +44,7 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
                 </div>
               </div>
             ))}
-          </div>
+          </div> */}
           <div className="flex">
             <input
               type="text"

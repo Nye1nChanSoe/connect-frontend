@@ -11,8 +11,7 @@ import { useAuth } from "@/Contexts/AuthProvider";
 
 const Home: React.FC = () => {
   const [conversations, setConversations] = useState<Conversation[]>([]);
-  const [selectedConversation, setSelectedConversation] =
-    useState<Conversation | null>(null);
+  const [selectedConversation, setSelectedConversation] = useState<string>("");
   const [newMessage, setNewMessage] = useState<string>("");
 
   const [users, setUsers] = useState<User[]>([]);
@@ -89,6 +88,7 @@ const Home: React.FC = () => {
       const room = `room_id_${userCredentials?.email}_${user.email}`;
 
       if (joinedRooms.has(room)) {
+        setSelectedConversation(room);
         console.log(`Already joined the room: ${room}`);
         return;
       }
@@ -150,7 +150,7 @@ const Home: React.FC = () => {
       <div className="flex flex-1">
         <ConversationList
           conversations={conversations}
-          selectedConversationId={selectedConversation?.id || null}
+          selectedConversation={selectedConversation}
           onSelectConversation={setSelectedConversation}
         />
         <ChatWindow
