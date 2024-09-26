@@ -1,0 +1,41 @@
+{
+  "users": [
+    { "id": 1, "username": "Alice" },
+    { "id": 2, "username": "Bob" },
+    { "id": 3, "username": "Charlie" }
+  ],
+  "conversations": [
+    {
+      "id": 1,
+      "participants": [1, 2],
+      "messages": [
+        {
+          "senderId": 1,
+          "content": "Hey Bob!",
+          "timestamp": "2024-09-26T10:00:00Z"
+        },
+        {
+          "senderId": 2,
+          "content": "Hello Alice!",
+          "timestamp": "2024-09-26T10:01:00Z"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "participants": [1, 3],
+      "messages": [
+        {
+          "senderId": 1,
+          "content": "Hi Charlie!",
+          "timestamp": "2024-09-26T10:02:00Z"
+        },
+        {
+          "senderId": 3,
+          "content": "Hey Alice!",
+          "timestamp": "2024-09-26T10:03:00Z"
+        }
+      ]
+    }
+  ]
+}
