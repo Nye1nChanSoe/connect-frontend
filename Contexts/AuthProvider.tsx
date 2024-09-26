@@ -41,17 +41,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     const token = localStorage.getItem("token");
 
     if (token) {
-      try {
-        const decodedToken: { sub: UserCredentials } = jwtDecode(token); // Decode the token and extract the user credentials
-        setUserCredentials(decodedToken.sub);
-        setIsAuthenticated(true);
-        router.replace("/app");
-      } catch (error) {
-        console.error("Invalid token", error);
-        setIsAuthenticated(false);
-        setUserCredentials(null);
-        router.replace("/login");
-      }
+      const decodedToken: { sub: UserCredentials } = jwtDecode(token); // Decode the token and extract the user credentials
+      setUserCredentials(decodedToken.sub);
+      setIsAuthenticated(true);
+      router.push("/app");
     } else {
       setIsAuthenticated(false);
       setUserCredentials(null);

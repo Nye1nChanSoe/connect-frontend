@@ -13,6 +13,8 @@ export interface Message {
 
 export interface Conversation {
   id: number;
-  participants: number[];
-  messages: Message[];
+  room_name: string;
+  created_by: string;
+  participant: string;
+  created_at: string;
 }

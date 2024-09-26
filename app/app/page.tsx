@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import data from "../../data.json";
 import UserList from "../components/UserList";
 import ConversationList from "../components/ChatList";
 import ChatWindow from "../components/ChatWindow";
@@ -11,7 +10,7 @@ import socket from "@/utils/socket"; // Ensure your socket import path is correc
 import { useAuth } from "@/Contexts/AuthProvider";
 
 const Home: React.FC = () => {
-  const [conversations] = useState<Conversation[]>(data.conversations);
+  const [conversations, setConversations] = useState<Conversation[]>([]);
   const [selectedConversation, setSelectedConversation] =
     useState<Conversation | null>(null);
   const [newMessage, setNewMessage] = useState<string>("");
@@ -28,26 +27,54 @@ const Home: React.FC = () => {
     }
   });
 
+  // Assuming isAuthenticated is already part of your state
   useEffect(() => {
-    const fetchUsers = async () => {
-      const response = await fetch("http://localhost:5000/users", {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-      });
+    const fetchUsersAndConversations = async () => {
+      try {
+        // Fetch users
+        const usersResponse = await fetch("http://localhost:5000/users", {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        });
 
-      if (!response.ok) {
-        throw new Error("Failed to fetch users");
+        if (!usersResponse.ok) {
+          throw new Error("Failed to fetch users");
+        }
+
+        const usersData = await usersResponse.json();
+        setUsers(usersData.users); // Ensure that the server returns users in this format
+
+        // Fetch conversations
+        const conversationsResponse = await fetch(
+          "http://localhost:5000/conversations",
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
+          }
+        );
+
+        if (!conversationsResponse.ok) {
+          throw new Error("Failed to fetch conversations");
+        }
+
+        const conversationsData = await conversationsResponse.json();
+        setConversations(conversationsData.conversations);
+        conversationsData.conversations.map((c: Conversation) =>
+          setJoinedRooms((prev) => new Set(prev).add(c.room_name))
+        );
+      } catch (error) {
+        console.error("Error fetching data:", error);
       }
-
-      const data = await response.json();
-      setUsers(data.users); // Ensure that the server returns users in this format
     };
 
     if (isAuthenticated) {
-      fetchUsers();
+      fetchUsersAndConversations();
     }
   }, [isAuthenticated]);
 
@@ -57,15 +84,15 @@ const Home: React.FC = () => {
     });
   }, []);
 
-  const handleUserClick = (user: User) => {
+  const handleUserClick = async (user: User) => {
     if (socket.connected) {
       const room = `room_id_${userCredentials?.email}_${user.email}`;
+
       if (joinedRooms.has(room)) {
         console.log(`Already joined the room: ${room}`);
         return;
       }
-
-      // Emit join room events
+      await checkRoomExists(room, user.username);
       socket.emit("join_room", {
         room: room,
         username: userCredentials?.username,
@@ -76,38 +103,32 @@ const Home: React.FC = () => {
         username: user.username,
         created_by: userCredentials?.id,
       });
-
       setJoinedRooms((prev) => new Set(prev).add(room));
-
-      // // Create new conversation
-      // const newConversation: Conversation = {
-      //   id: conversations.length + 1,
-      //   participants: [user.username, userCredentials?.username],
-      //   messages: [],
-      // };
-      // setConversations((prev) => [...prev, newConversation]);
-      // setSelectedConversation(newConversation); // Set the newly created conversation as selected
     } else {
       console.error("Socket is not connected!");
     }
   };
 
-  const handleSendMessage = () => {
-    if (selectedConversation && newMessage.trim()) {
-      const updatedMessages = [
-        ...selectedConversation.messages,
+  const checkRoomExists = async (room: string, participant: string) => {
+    try {
+      const response = await fetch(
+        `http://localhost:5000/conversations/${room}`,
         {
-          senderId: 1, // Adjust accordingly
-          content: newMessage,
-          timestamp: new Date().toISOString(),
-        },
-      ];
-
-      setSelectedConversation({
-        ...selectedConversation,
-        messages: updatedMessages,
-      });
-      setNewMessage("");
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+          body: JSON.stringify({ participant }),
+        }
+      );
+      if (!response.ok) {
+        throw new Error("Failed to check room existence");
+      }
+      const data = await response.json();
+      setConversations([data, ...conversations]);
+    } catch (error) {
+      console.error("Error checking room existence:", error);
     }
   };
 
@@ -136,7 +157,7 @@ const Home: React.FC = () => {
           selectedConversation={selectedConversation}
           newMessage={newMessage}
           setNewMessage={setNewMessage}
-          handleSendMessage={handleSendMessage}
+          handleSendMessage={() => {}}
         />
       </div>
     </div>

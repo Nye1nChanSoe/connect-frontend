@@ -24,7 +24,7 @@ const ConversationList: React.FC<ConversationListProps> = ({
               selectedConversationId === conversation.id ? "bg-blue-100" : ""
             }`}
           >
-            Chat with {conversation.participants.join(", ")}
+            Chat with {conversation.participant}
           </li>
         ))}
       </ul>

@@ -11,7 +11,6 @@ const Login: React.FC = () => {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Prepare the data to be sent
     const userData = { email, password };
 
     try {
@@ -23,13 +22,12 @@ const Login: React.FC = () => {
         body: JSON.stringify(userData),
       });
 
-      // Log the response for debugging
       const data = await response.json();
       console.log("Response:", data);
 
-      // Check if the response is successful
       if (response.ok) {
         localStorage.setItem("token", data.access_token);
+        router.refresh();
         router.push("/app");
       } else {
         alert(data.message || "Login failed. Please try again.");
