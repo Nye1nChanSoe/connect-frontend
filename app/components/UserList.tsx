@@ -1,12 +1,19 @@
 import React from "react";
-import { User } from "../../types";
+import { User } from "../../types"; // Ensure this path is correct
 
 interface UserListProps {
-  users: User[];
-  onLogout: () => void; // Prop to handle logout action
+  onLogout: () => void;
+  users: User[]; // New prop for users
+  onUserClick: (user: User) => void; // New prop for user clicks
+  user_id: number | undefined;
 }
 
-const UserList: React.FC<UserListProps> = ({ users, onLogout }) => {
+const UserList: React.FC<UserListProps> = ({
+  onLogout,
+  users,
+  onUserClick,
+  user_id,
+}) => {
   return (
     <div className="border p-4 flex flex-col">
       <div className="flex justify-between items-center">
@@ -14,8 +21,8 @@ const UserList: React.FC<UserListProps> = ({ users, onLogout }) => {
         <button
           onClick={onLogout}
           className="flex items-center justify-center bg-red-500 hover:bg-red-600 text-white rounded-md p-2 transition duration-300"
+          aria-label="Logout"
         >
-          {/* SVG Icon for Logout */}
           <svg
             xmlns="http://www.w3.org/2000/svg"
             fill="none"
@@ -32,15 +39,24 @@ const UserList: React.FC<UserListProps> = ({ users, onLogout }) => {
           </svg>
         </button>
       </div>
-      <div className="flex overflow-x-auto space-x-4 p-2">
-        {users.map((user) => (
-          <div
-            key={user.id}
-            className="bg-blue-800 text-white rounded-full px-4 py-2 cursor-pointer hover:bg-blue-700 transition duration-300"
-          >
-            {user.username}
-          </div>
-        ))}
+      <div className="flex overflow-x-auto space-x-4 p-2 mt-2">
+        {users
+          .filter((user) => user.id != user_id)
+          .map((user) => (
+            <div
+              key={user.id}
+              onClick={() => onUserClick(user)} // Use the handler from props
+              className="relative text-black border rounded-full px-4 py-2 cursor-pointer hover:bg-blue-200 transition duration-300"
+            >
+              {/* Online/Offline Dot */}
+              <div
+                className={`absolute top-0 right-0 w-3 h-3 rounded-full ${
+                  user.status === "online" ? "bg-green-500" : "bg-red-500"
+                }`}
+              />
+              {user.username}
+            </div>
+          ))}
       </div>
     </div>
   );
